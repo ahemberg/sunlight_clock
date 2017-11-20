@@ -11,10 +11,16 @@ class LcdController {
         void update_hour(int hour);
         void update_minute(int minute);
         void update_second(int second);
+        void update_unixtime(uint32_t unix_ts);
         void write_day_len_bar(float len_day);
+        void write_date_row(int date_arr[6]);
     protected:
     private:
         LiquidCrystal* p_lcd;
+        int on_screen_clock[6];
+        int clock_row = 1;
+        bool clock_active = false;
+        uint32_t old_unixtime;
         int columns;
         int rows;
         void write_clock(int col, int row, int t);

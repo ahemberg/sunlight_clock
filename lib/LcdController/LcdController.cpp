@@ -21,6 +21,27 @@ void LcdController::initialize_display() {
     this->p_lcd->display();
 }
 
+void LcdController::write_date_row(int date_arr[6]) {
+    int curr = 0;
+    if (!this->clock_active) {
+        this->p_lcd->setCursor(0, this->clock_row);
+        this->p_lcd->print("    -  -     :  :  ");
+        this->clock_active = true;
+    }
+    for (int i = 0; i < 6; i++) {
+        if (i != 0) {
+            curr = 2+3*i;
+        } else {
+            curr = 0;
+        }
+        if (date_arr[i] != this->on_screen_clock[i]) {
+            this->p_lcd->setCursor(curr, this->clock_row);
+            this->p_lcd->print(date_arr[i]);
+            this->on_screen_clock[i] = date_arr[i];
+        }
+    }
+}
+
 void LcdController::write_clock(int col, int row, int t) {
     this->p_lcd->setCursor(col,row);
     if (t < 10) {
@@ -30,15 +51,32 @@ void LcdController::write_clock(int col, int row, int t) {
 }
 
 void LcdController::update_hour(int hour) {
-    write_clock(0, 1, hour);
+    if (this->on_screen_clock[3] != hour) {
+        this->on_screen_clock[3] = hour;
+        write_clock(0, 1, hour);
+    }
 }
 
 void LcdController::update_minute(int minute) {
-    write_clock(3, 1, minute);
+    if (this->on_screen_clock[4] != minute) {
+        this->on_screen_clock[4] = minute;
+        write_clock(3, 1, minute);
+    }
 }
 
 void LcdController::update_second(int second) {
-    write_clock(6, 1, second);
+    if (this->on_screen_clock[5] != second) {
+        this->on_screen_clock[5] = second;
+        write_clock(6, 1, second);
+    }
+}
+
+void LcdController::update_unixtime(uint32_t unix_ts) {
+    if (this->old_unixtime != unix_ts) {
+        this->old_unixtime = unix_ts;
+        this->p_lcd->setCursor(0,2);
+        this->p_lcd->print(unix_ts);
+    }
 }
 
 void LcdController::write_day_len_bar(float len_day) {
@@ -83,10 +121,3 @@ void LcdController::write_day_len_bar(float len_day) {
     this->p_lcd->setCursor(11,3);
     this->p_lcd->print(partial_blocks);
 }
-
-/*
-void EngineState::stop() {
-	this->motor_controller.break_engine();
-	//this->motor_controller.stop();
-}
-*/
